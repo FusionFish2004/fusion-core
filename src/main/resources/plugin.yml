@@ -1,0 +1,5 @@
+name: FusionCore
+main: cn.fusionfish.core.FusionCore
+version: 1.0
+api-version: 1.17
+author: FusionFish
