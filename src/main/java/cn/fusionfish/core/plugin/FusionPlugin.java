@@ -106,6 +106,8 @@ public abstract class FusionPlugin extends JavaPlugin {
 
     @Override
     public final void onDisable() {
+        info("正在注销指令...");
+        commandManager.unregisterCommands();
         disable();
     }
 

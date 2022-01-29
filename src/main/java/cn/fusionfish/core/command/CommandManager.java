@@ -33,9 +33,7 @@ public final class CommandManager {
     }
 
     public void unregisterCommands() {
-
         try {
-
             @SuppressWarnings("unchecked")
             Map<String, Command> knownCommands = (Map<String, Command>) commandMap.getClass()
                     .getMethod("getKnownCommands")

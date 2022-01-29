@@ -15,7 +15,7 @@ public class Request {
     private final HttpExchange exchange;
     private boolean responded = false;
 
-    public Request(HttpExchange exchange) {
+    protected Request(HttpExchange exchange) {
         this.exchange = exchange;
     }
 
