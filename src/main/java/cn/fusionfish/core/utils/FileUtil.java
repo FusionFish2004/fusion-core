@@ -11,9 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author JeremyHu
+ */
 public class FileUtil {
-    public FileUtil() {
-    }
 
     @Nullable
     public static String readFile(File file) {

@@ -2,14 +2,17 @@ package cn.fusionfish.core;
 
 import cn.fusionfish.core.plugin.FusionPlugin;
 
-public class FusionCore extends FusionPlugin {
+/**
+ * @author JeremyHu
+ */
+public final class FusionCore extends FusionPlugin {
     @Override
-    protected final void enable() {
+    protected void enable() {
 
     }
 
     @Override
-    protected final void disable() {
+    protected void disable() {
 
     }
 }

@@ -11,7 +11,10 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandManager {
+/**
+ * @author JeremyHu
+ */
+public final class CommandManager {
 
     private final Map<String, Command> commands = new HashMap<>();
     private final Plugin plugin;
@@ -34,7 +37,9 @@ public class CommandManager {
         try {
 
             @SuppressWarnings("unchecked")
-            Map<String, Command> knownCommands = (Map<String, Command>) commandMap.getClass().getMethod("getKnownCommands").invoke(commandMap);
+            Map<String, Command> knownCommands = (Map<String, Command>) commandMap.getClass()
+                    .getMethod("getKnownCommands")
+                    .invoke(commandMap);
 
             knownCommands.values().removeIf(commands.values()::contains);
             commands.values().forEach(c -> c.unregister(commandMap));

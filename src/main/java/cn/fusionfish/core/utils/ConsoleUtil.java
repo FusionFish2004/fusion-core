@@ -1,17 +1,21 @@
 package cn.fusionfish.core.utils;
 
 import cn.fusionfish.core.plugin.FusionPlugin;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * @author JeremyHu
+ */
 public class ConsoleUtil {
 
     public static void info(String str) {
         FusionPlugin plugin = FusionPlugin.getInstance();
         Logger logger = plugin.getLogger();
-        logger.info("§a" + str);
+        logger.info(ChatColor.GREEN + str);
     }
 
     public static void info(@NotNull List<String> str) {

@@ -1,5 +1,6 @@
 package cn.fusionfish.core.command;
 
+import cn.fusionfish.core.annotations.FusionCommand;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -13,6 +14,10 @@ import java.util.*;
 
 import static cn.fusionfish.core.utils.ConsoleUtil.warn;
 
+/**
+ * @author JeremyHu
+ */
+
 public abstract class SimpleCommand extends Command {
 
     public final FusionPlugin plugin = FusionPlugin.getInstance();
@@ -20,6 +25,8 @@ public abstract class SimpleCommand extends Command {
     public SimpleCommand getParent() {
         return parent;
     }
+
+    private final FusionCommand annotation = this.getClass().getAnnotation(FusionCommand.class);
 
     protected final SimpleCommand parent;
 
@@ -32,31 +39,35 @@ public abstract class SimpleCommand extends Command {
     private boolean isAdminCommand = false;
     private boolean isPlayerOnly = false;
 
-    /**
-     * 创建一个主命令
-     *
-     * @param label   - 命令名
-     * @param aliases - 命令别名
-     */
-    protected SimpleCommand(String label, String... aliases) {
-        super(label, "", "", Arrays.asList(aliases));
+    public SimpleCommand() {
+        super("","","", Lists.newArrayList());
+        setLabel(annotation.label());
+        setDescription(annotation.description());
+        setUsage(annotation.usage());
+        setPermission(annotation.perm());
+        setAliases(Lists.newArrayList(annotation.aliases()));
 
-        this.parent = null;
+        if (annotation.adminCommand()) {
+            setAdminCommand();
+        }
+
+        if (annotation.playerCommand()) {
+            setPlayerOnly();
+        }
+
+        //获取父命令
+        if (!"".equals(annotation.parent())) {
+            this.parent = null;
+            return;
+        }
+
+        Set<SimpleCommand> commands = plugin.getCommands();
+        this.parent = commands.stream()
+                .filter(simpleCommand -> simpleCommand.getClass().getSimpleName().equalsIgnoreCase(annotation.parent()))
+                .findFirst()
+                .orElse(null);
 
         plugin.getCommandManager().registerCommand(this);
-    }
-
-    /**
-     * 创建一个子命令
-     *
-     * @param parent - 父命令
-     * @param label  - 命令名
-     */
-    protected SimpleCommand(@NotNull SimpleCommand parent, String label) {
-        super(label, "", "", new ArrayList<>());
-        this.parent = parent;
-
-        parent.subCommands.put(label, this);
     }
 
     public void setAdminCommand() {
@@ -191,5 +202,22 @@ public abstract class SimpleCommand extends Command {
 
     public void sendMsg(String msg) {
         sender.sendMessage("§c" + msg);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SimpleCommand that = (SimpleCommand) o;
+        return isAdminCommand == that.isAdminCommand && isPlayerOnly == that.isPlayerOnly && getParent().equals(that.getParent());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getParent(), isAdminCommand, isPlayerOnly);
     }
 }
