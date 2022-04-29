@@ -1,4 +1,4 @@
-package cn.fusionfish.core.web;
+package cn.fusionfish.core.web.http;
 
 import cn.fusionfish.core.annotations.FusionHandler;
 import cn.fusionfish.core.utils.ConsoleUtil;

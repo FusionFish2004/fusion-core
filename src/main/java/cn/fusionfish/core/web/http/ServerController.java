@@ -1,10 +1,8 @@
-package cn.fusionfish.core.web;
+package cn.fusionfish.core.web.http;
 
 import cn.fusionfish.core.annotations.FusionHandler;
 import cn.fusionfish.core.plugin.FusionPlugin;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpServer;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 
@@ -12,22 +10,21 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
  * @author JeremyHu
  */
+@SuppressWarnings("unused")
 public final class ServerController {
 
-    private static final ThreadFactory FACTORY = new ThreadFactoryBuilder()
-            .setNameFormat("fusion-core-pool-%d")
-            .build();
     private final HttpServer server;
     private final Reflections reflections = FusionPlugin.getInstance().getReflections();
     private Set<Handler> handlers;
     private final int port;
 
+    @SuppressWarnings("all")
     public ServerController(int port) throws IOException {
         this.port = port;
         server = HttpServer.create(new InetSocketAddress(this.port),0);
@@ -35,13 +32,13 @@ public final class ServerController {
         loadHandlers();
         //创建地址
         createContexts();
-        server.setExecutor(newCachedThreadPool());
+        server.setExecutor(Executors.newCachedThreadPool());
         server.start();
     }
 
     private void loadHandlers() {
         handlers = reflections.getTypesAnnotatedWith(FusionHandler.class).stream()
-                .filter(clazz -> "cn.fusionfish.core.web.Handler".equals(clazz.getSuperclass().getName()))
+                .filter(clazz -> "cn.fusionfish.core.web.http.Handler".equals(clazz.getSuperclass().getName()))
                 .map(clazz -> {
                     try {
                         return (Handler) clazz.getDeclaredConstructor().newInstance();
@@ -55,11 +52,18 @@ public final class ServerController {
                 .collect(Collectors.toSet());
     }
 
+    private void createContext(@NotNull Handler handler) {
+        String path = handler.getPath();
+        server.createContext(path, handler);
+        handlers.add(handler);
+    }
+
+    public Set<Handler> getHandlers() {
+        return handlers;
+    }
+
     private void createContexts() {
-        handlers.forEach(handler -> {
-            String path = handler.getPath();
-            server.createContext(path, handler);
-        });
+        handlers.forEach(this::createContext);
     }
 
     public HttpServer getServer() {
@@ -74,14 +78,9 @@ public final class ServerController {
         server.stop(0);
     }
 
+
     public int getPort() {
         return port;
     }
 
-    @Contract(" -> new")
-    public static @NotNull ExecutorService newCachedThreadPool() {
-        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(), FACTORY);
-    }
 }

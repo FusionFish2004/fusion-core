@@ -1,4 +1,4 @@
-package cn.fusionfish.core.web;
+package cn.fusionfish.core.web.http;
 
 import com.google.common.collect.Maps;
 import com.sun.net.httpserver.HttpExchange;
@@ -35,15 +35,15 @@ public class Request {
         responded = true;
     }
 
-    public @NotNull Map<String, String> getQuery() {
-        String query = exchange.getRequestURI().getQuery();
-        String[] args = query.split("&");
+    public Query getQuery() {
+        String queryString = exchange.getRequestURI().getQuery();
+        String[] args = queryString.split("&");
         Map<String,String> map = Maps.newHashMap();
         for(String str : args){
             String[] args2 = str.split("=");
             map.put(args2[0],args2[1]);
         }
-        return map;
+        return new Query(map);
     }
 
 }

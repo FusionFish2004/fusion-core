@@ -4,6 +4,7 @@ import cn.fusionfish.core.annotations.FusionCommand;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -28,7 +29,7 @@ public abstract class SimpleCommand extends Command {
 
     private final FusionCommand annotation = this.getClass().getAnnotation(FusionCommand.class);
 
-    protected final SimpleCommand parent;
+    protected SimpleCommand parent;
 
     private final Map<String, SimpleCommand> subCommands = Maps.newLinkedHashMap();
     private final List<String> tabComplete = Lists.newArrayList();
@@ -36,11 +37,17 @@ public abstract class SimpleCommand extends Command {
     protected CommandSender sender;
     protected String[] args;
 
-    private boolean isAdminCommand = false;
-    private boolean isPlayerOnly = false;
+    private boolean adminCommand = false;
+    private boolean playerOnly = false;
+    private boolean parentCommand = true;
 
     public SimpleCommand() {
         super("","","", Lists.newArrayList());
+    }
+
+    public void init() {
+
+        setName(annotation.label());
         setLabel(annotation.label());
         setDescription(annotation.description());
         setUsage(annotation.usage());
@@ -56,26 +63,33 @@ public abstract class SimpleCommand extends Command {
         }
 
         //获取父命令
-        if (!"".equals(annotation.parent())) {
+        if ("".equals(annotation.parent())) {
             this.parent = null;
-            return;
+        } else {
+            Set<SimpleCommand> commands = plugin.getCommands();
+            this.parent = commands.stream()
+                    .filter(simpleCommand -> simpleCommand.getClass().getSimpleName().equals(annotation.parent()))
+                    .findFirst()
+                    .orElse(null);
         }
 
-        Set<SimpleCommand> commands = plugin.getCommands();
-        this.parent = commands.stream()
-                .filter(simpleCommand -> simpleCommand.getClass().getSimpleName().equalsIgnoreCase(annotation.parent()))
-                .findFirst()
-                .orElse(null);
+        if (parent != null) {
+            parent.subCommands.put(getName(), this);
+            parentCommand = false;
+        }
 
-        plugin.getCommandManager().registerCommand(this);
+    }
+
+    public boolean isParentCommand() {
+        return parentCommand;
     }
 
     public void setAdminCommand() {
-        isAdminCommand = true;
+        adminCommand = true;
     }
 
     public void setPlayerOnly() {
-        isPlayerOnly = true;
+        playerOnly = true;
     }
 
     @Override
@@ -89,7 +103,7 @@ public abstract class SimpleCommand extends Command {
         simpleCommand.sender = sender;
         simpleCommand.args = args;
 
-        if (simpleCommand.isPlayerOnly && simpleCommand.sender instanceof ConsoleCommandSender) {
+        if (simpleCommand.isPlayerOnly() && simpleCommand.sender instanceof ConsoleCommandSender) {
             warn("该命令只能由玩家执行");
             return true;
         }
@@ -101,6 +115,14 @@ public abstract class SimpleCommand extends Command {
         }
 
         return true;
+    }
+
+    public boolean isAdminCommand() {
+        return adminCommand;
+    }
+
+    public boolean isPlayerOnly() {
+        return playerOnly;
     }
 
     public Optional<SimpleCommand> getSubCommand(String label) {
@@ -123,6 +145,10 @@ public abstract class SimpleCommand extends Command {
      */
     public List<SimpleCommand> getAllSubCommands() {
 
+        if (!isParentCommand()) {
+            return null;
+        }
+
         List<SimpleCommand> buffer = Lists.newArrayList();
 
         Stack<SimpleCommand> commandStack = new Stack<>();
@@ -143,6 +169,15 @@ public abstract class SimpleCommand extends Command {
         return buffer;
     }
 
+    public String getDefaultUsageMessage() {
+        StringBuilder sb = new StringBuilder();
+        getAllSubCommands().stream()
+                .filter(command -> !"".equals(command.getUsage()))
+                .map(command -> command.getUsage() + " - " + command.getDescription())
+                .forEach(string -> sb.append(ChatColor.AQUA).append(string).append("\n"));
+        return sb.toString().trim();
+    }
+
     protected boolean hasSubCommands() {
         return !subCommands.isEmpty();
     }
@@ -159,7 +194,7 @@ public abstract class SimpleCommand extends Command {
 
         SimpleCommand simpleCommand = this;
 
-        // Run through any arguments
+        //遍历所有参数
         for (String arg : args) {
             // 没有子命令就结束循环
             if (!simpleCommand.hasSubCommands()) {
@@ -171,7 +206,7 @@ public abstract class SimpleCommand extends Command {
                 return simpleCommand;
             }
 
-            boolean isAdminCommand = subCommand.get().isAdminCommand;
+            boolean isAdminCommand = subCommand.get().isAdminCommand();
             boolean isOp = sender.isOp();
 
             if (isAdminCommand && !isOp) {
@@ -198,11 +233,10 @@ public abstract class SimpleCommand extends Command {
         return options;
     }
 
+    /**
+     * 执行
+     */
     public abstract void onCommand();
-
-    public void sendMsg(String msg) {
-        sender.sendMessage("§c" + msg);
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -213,11 +247,11 @@ public abstract class SimpleCommand extends Command {
             return false;
         }
         SimpleCommand that = (SimpleCommand) o;
-        return isAdminCommand == that.isAdminCommand && isPlayerOnly == that.isPlayerOnly && getParent().equals(that.getParent());
+        return getName().equals(that.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getParent(), isAdminCommand, isPlayerOnly);
+        return Objects.hash(getName());
     }
 }

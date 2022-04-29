@@ -15,7 +15,7 @@ public class ConsoleUtil {
     public static void info(String str) {
         FusionPlugin plugin = FusionPlugin.getInstance();
         Logger logger = plugin.getLogger();
-        logger.info(ChatColor.GREEN + str);
+        logger.info(ChatColor.AQUA + str);
     }
 
     public static void info(@NotNull List<String> str) {
