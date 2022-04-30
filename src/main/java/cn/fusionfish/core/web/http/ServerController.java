@@ -1,5 +1,6 @@
 package cn.fusionfish.core.web.http;
 
+import cn.fusionfish.core.FusionCore;
 import cn.fusionfish.core.annotations.FusionHandler;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import com.sun.net.httpserver.HttpServer;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 public final class ServerController {
 
     private final HttpServer server;
-    private final Reflections reflections = FusionPlugin.getInstance().getReflections();
     private Set<Handler> handlers;
     private final int port;
 
@@ -29,14 +29,15 @@ public final class ServerController {
         this.port = port;
         server = HttpServer.create(new InetSocketAddress(this.port),0);
         //反射加载handler
-        loadHandlers();
+        loadHandlers(FusionCore.getCore());
         //创建地址
         createContexts();
         server.setExecutor(Executors.newCachedThreadPool());
         server.start();
     }
 
-    private void loadHandlers() {
+    public void loadHandlers(@NotNull FusionPlugin plugin) {
+        Reflections reflections = plugin.getReflections();
         handlers = reflections.getTypesAnnotatedWith(FusionHandler.class).stream()
                 .filter(clazz -> "cn.fusionfish.core.web.http.Handler".equals(clazz.getSuperclass().getName()))
                 .map(clazz -> {
@@ -52,7 +53,7 @@ public final class ServerController {
                 .collect(Collectors.toSet());
     }
 
-    private void createContext(@NotNull Handler handler) {
+    public void createContext(@NotNull Handler handler) {
         String path = handler.getPath();
         server.createContext(path, handler);
         handlers.add(handler);
@@ -68,10 +69,6 @@ public final class ServerController {
 
     public HttpServer getServer() {
         return server;
-    }
-
-    public void start() {
-        server.start();
     }
 
     public void stop() {

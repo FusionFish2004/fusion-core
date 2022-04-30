@@ -386,8 +386,9 @@ public abstract class FusionPlugin extends JavaPlugin {
         }
 
         try {
-            serverController = new ServerController(11451);
-            serverController.start();
+            int port = getConfig().getInt("web.http-port", 11451);
+            info("启动HTTP服务器（端口" + port + "）");
+            serverController = new ServerController(port);
         } catch (IOException e) {
             e.printStackTrace();
         }
