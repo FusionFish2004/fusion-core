@@ -2,6 +2,7 @@ package cn.fusionfish.core.command;
 
 import cn.fusionfish.core.command.parser.Parser;
 import cn.fusionfish.core.exception.ParseException;
+import cn.fusionfish.core.utils.ConsoleUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.kyori.adventure.text.Component;
@@ -49,7 +50,7 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
         methodMap.keySet().stream()
                 //匹配指定数量
                 //如"subcommand.method.Double.String"便无法匹配"subcommand.method.Double.String.Double"
-                .filter(subCommandPreState -> subCommandPreState.getCommandLength() == args.length)
+                .filter(subCommandPreState -> subCommandPreState.getTotalLength() == args.length)
                 //匹配所有以指定命令前缀开头的指令
                 //如"subcommand.method.Double.String"便可匹配"subcommand.method"
                 .filter(subCommandPreState -> commandAndArgs.toString().startsWith(subCommandPreState.command()))
@@ -60,8 +61,10 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
                     for (String arg : args) {
                         trimmedArgsStringJoiner.add(arg);
                     }
+
                     //删除子命令部分
                     String trimmedArgsString = trimmedArgsStringJoiner.toString().replace(command + ".", "");
+
                     String[] trimmedArgs = trimmedArgsString.split("\\.");
 
                     //数量不同
@@ -70,8 +73,27 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
                     }
 
                     candidates.put(subCommandPreState, trimmedArgs);
-
                 });
+
+        //匹配空参数指令
+        methodMap.keySet().stream()
+                //获得所有空参数指令
+                .filter(candidate -> {
+                    Method method = methodMap.get(candidate);
+
+                    if(method.getParameterTypes().length != 1 || !method.getParameterTypes()[0].equals(CommandSender.class)) {
+                        return false;
+                    }
+
+                    StringJoiner commandStringJoiner = new StringJoiner(".");
+                    for (String arg : args) {
+                        commandStringJoiner.add(arg);
+                    }
+                    SubCommand annotation = method.getAnnotation(SubCommand.class);
+                    return annotation.command().equalsIgnoreCase(commandStringJoiner.toString());
+                })
+                .forEach(candidate -> candidates.put(candidate, null));
+
 
         //若匹配到的指令数量不唯一
         if (candidates.size() != 1) {
@@ -85,13 +107,19 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
             SubCommandPreState candidate = candidates.keySet().stream()
                     .findFirst()
                     .orElseThrow();
+
             String[] trimmedArgs = candidates.get(candidate);
-
             Object[] parsedArgs = Parser.parseArgs(trimmedArgs, candidate.getTypes());
-            Object[] params = new Object[parsedArgs.length + 1];
 
-            //错一位存入数组
-            System.arraycopy(parsedArgs, 0, params, 1, parsedArgs.length);
+            Object[] params;
+            if (parsedArgs == null) {
+                params = new Object[1];
+            } else {
+                params = new Object[parsedArgs.length + 1];
+                //错一位存入数组
+                System.arraycopy(parsedArgs, 0, params, 1, parsedArgs.length);
+            }
+
             //将CommandSender存入数组
             params[0] = sender;
 
@@ -132,8 +160,8 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
                 .filter(candidate -> candidate.command().startsWith(command.toString()))
                 .map(candidate -> {
                     try {
-                        String[] candidateArgs = candidate.args().split("\\.");
-                        return candidateArgs[args.length];
+                        String[] candidateArgs = candidate.command().split("\\.");
+                        return candidateArgs[args.length - 1];
                     } catch (ArrayIndexOutOfBoundsException e) {
                         return null;
                     }
@@ -163,7 +191,13 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
                             .map(Class::getSimpleName)
                             .forEach(params::add);
                     methodMap.put(new SubCommandPreState(command, params.toString()), method);
+
+
+
                 });
+
+        ConsoleUtil.info(methodMap.toString());
+
     }
 
     record SubCommandPreState(String command, String args) {
@@ -199,6 +233,15 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
         @Override
         public int hashCode() {
             return Objects.hash(command, args);
+        }
+
+        @Contract(pure = true)
+        @Override
+        public @NotNull String toString() {
+            return "SubCommandPreState{" +
+                    "command='" + command + '\'' +
+                    ", args='" + args + '\'' +
+                    '}';
         }
     }
 

@@ -3,6 +3,7 @@ package cn.fusionfish.core.command.parser;
 import cn.fusionfish.core.exception.ParseException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author JeremyHu
@@ -24,7 +25,15 @@ public interface Parser<T> {
      * @return 解析后的所有参数
      */
     @Contract(pure = true)
-    static Object @NotNull [] parseArgs(String @NotNull [] args, String @NotNull [] types) throws ParseException {
+    static Object @Nullable [] parseArgs(String[] args, String[] types) throws ParseException {
+
+        if (args == null) {
+            return null;
+        }
+
+        if (types == null) {
+            return null;
+        }
 
         ParserFactory factory = new ParserFactory();
 

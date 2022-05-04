@@ -1,5 +1,6 @@
 package cn.fusionfish.core;
 
+import cn.fusionfish.core.command.TestCompositeCommand;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import cn.fusionfish.core.web.http.ServerController;
 
@@ -11,7 +12,7 @@ import static cn.fusionfish.core.utils.ConsoleUtil.info;
 public final class FusionCore extends FusionPlugin {
     @Override
     protected void enable() {
-
+        getCommandManager().registerCommand(new TestCompositeCommand());
     }
 
     @Override
