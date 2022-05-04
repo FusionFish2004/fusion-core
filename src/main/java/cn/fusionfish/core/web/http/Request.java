@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -23,10 +24,14 @@ public class Request {
         if (responded) {
             return;
         }
+
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+
         try {
-            exchange.sendResponseHeaders(200,string.getBytes().length);
+            exchange.getResponseHeaders().add("Content-Type:", "text/html;charset=utf-8");
+            exchange.sendResponseHeaders(200,bytes.length);
             OutputStream body = exchange.getResponseBody();
-            body.write(string.getBytes());
+            body.write(bytes);
             body.flush();
         } catch (IOException e) {
             e.printStackTrace();

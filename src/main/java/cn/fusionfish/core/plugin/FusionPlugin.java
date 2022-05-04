@@ -5,6 +5,7 @@ import cn.fusionfish.core.annotations.FusionCommand;
 import cn.fusionfish.core.annotations.FusionListener;
 import cn.fusionfish.core.command.CommandManager;
 import cn.fusionfish.core.command.SimpleCommand;
+import cn.fusionfish.core.exception.HttpServerNotDeployingException;
 import cn.fusionfish.core.utils.FileUtil;
 import cn.fusionfish.core.utils.StringUtil;
 import cn.fusionfish.core.web.http.ServerController;
@@ -117,11 +118,6 @@ public abstract class FusionPlugin extends JavaPlugin {
     public final void onDisable() {
         info("正在注销指令...");
         commandManager.unregisterCommands();
-
-        if (serverController != null) {
-            info("正在关闭HTTP服务器...");
-            serverController.stop();
-        }
 
         disable();
 
@@ -391,16 +387,18 @@ public abstract class FusionPlugin extends JavaPlugin {
             serverController = new ServerController(port);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (HttpServerNotDeployingException e) {
+            serverController = null;
         }
 
     }
 
     public ServerController getServerController() {
-        if (serverController != null) {
-            return serverController;
+        if (!isCore()) {
+            return core.getServerController();
         }
 
-        return core.getServerController();
+        return serverController;
     }
 
     public static FusionCore getCore() {

@@ -19,6 +19,7 @@ import static cn.fusionfish.core.utils.ConsoleUtil.warn;
  * @author JeremyHu
  */
 
+@Deprecated
 public abstract class SimpleCommand extends Command {
 
     public final FusionPlugin plugin = FusionPlugin.getInstance();

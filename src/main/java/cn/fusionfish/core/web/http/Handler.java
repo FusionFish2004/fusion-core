@@ -22,7 +22,7 @@ public abstract class Handler implements HttpHandler {
 
     @Override
     public final void handle(HttpExchange exchange) {
-        ConsoleUtil.info("Triggered Handler(" + this.getClass().getSimpleName() + ")");
+        ConsoleUtil.info("触发服务(" + this.getClass().getSimpleName() + ")");
         Request request = new Request(exchange);
         handleRequest(request);
         request.respond("null");

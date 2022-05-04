@@ -14,6 +14,7 @@ import java.util.Map;
 /**
  * @author JeremyHu
  */
+
 public final class CommandManager {
 
     private final Map<String, Command> commands = new HashMap<>();
@@ -25,12 +26,11 @@ public final class CommandManager {
         commandMap = getCommandMap();
     }
 
-    public void registerCommand(SimpleCommand command) {
-
+    public void registerCommand(Command command) {
         commandMap.register(plugin.getName(), command);
         commands.put(command.getLabel(), command);
-
     }
+
 
     public void unregisterCommands() {
         try {
@@ -54,7 +54,6 @@ public final class CommandManager {
     private static @Nullable CommandMap getCommandMap() {
 
         try {
-
             Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             bukkitCommandMap.setAccessible(true);
             return (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
