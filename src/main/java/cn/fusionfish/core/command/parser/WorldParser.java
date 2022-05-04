@@ -1,6 +1,6 @@
 package cn.fusionfish.core.command.parser;
 
-import cn.fusionfish.core.exception.ParseException;
+import cn.fusionfish.core.exception.command.ParseException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 

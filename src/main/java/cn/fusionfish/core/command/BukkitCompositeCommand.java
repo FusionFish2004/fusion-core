@@ -1,14 +1,17 @@
 package cn.fusionfish.core.command;
 
 import cn.fusionfish.core.command.parser.Parser;
-import cn.fusionfish.core.exception.ParseException;
+import cn.fusionfish.core.exception.command.CommandLackPermissionException;
+import cn.fusionfish.core.exception.command.ParseException;
+import cn.fusionfish.core.exception.command.WrongSenderException;
 import cn.fusionfish.core.utils.ConsoleUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Contract;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -36,6 +39,10 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface SubCommand {
         String command();
+        boolean playerCommand() default false;
+        boolean adminCommand() default false;
+        String permission() default "";
+        String usage() default "";
     }
 
     @Override
@@ -103,13 +110,39 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
             return true;
         }
 
-        try {
-            SubCommandPreState candidate = candidates.keySet().stream()
-                    .findFirst()
-                    .orElseThrow();
+        SubCommandPreState candidate = candidates.keySet().stream()
+                .findFirst()
+                .orElseThrow();
+        Method method = methodMap.get(candidate);
+        SubCommand annotation = method.getAnnotation(SubCommand.class);
 
+        try {
             String[] trimmedArgs = candidates.get(candidate);
             Object[] parsedArgs = Parser.parseArgs(trimmedArgs, candidate.getTypes());
+
+
+            //检查执行者
+            if (annotation.playerCommand()) {
+                if (!(sender instanceof Player player)) {
+                    throw new WrongSenderException("玩家");
+                }
+
+                //管理员指令
+                if (annotation.adminCommand()) {
+                    if (!player.isOp()) {
+                        throw new WrongSenderException("管理员");
+                    }
+                }
+
+                //检查权限
+                String permission = annotation.permission();
+                if (permission != null && !"".equals(permission)) {
+                    if (!player.hasPermission(permission)) {
+                        throw new CommandLackPermissionException(permission);
+                    }
+                }
+
+            }
 
             Object[] params;
             if (parsedArgs == null) {
@@ -123,17 +156,37 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
             //将CommandSender存入数组
             params[0] = sender;
 
-            Method method = methodMap.get(candidate);
             method.invoke(this, params);
         } catch (ParseException e) {
             //无法解析参数
             sender.sendMessage(Component.text("无法解析参数\"" + e.getArg() + "\"！")
                     .color(NamedTextColor.RED)
             );
+
+            String usage;
+            if (annotation.usage() != null && !"".equals(annotation.usage())) {
+                usage = annotation.usage();
+            } else {
+                usage = getDefaultUsage(this, method);
+            }
+            sender.sendMessage(Component.text(usage)
+                    .color(NamedTextColor.RED)
+            );
+
         } catch (IllegalAccessException | InvocationTargetException e) {
             //出现内部错误
             e.printStackTrace();
             sender.sendMessage(Component.text("出现内部错误！")
+                    .color(NamedTextColor.RED)
+            );
+        } catch (CommandLackPermissionException e) {
+            //缺少权限
+            sender.sendMessage(Component.text("您没有权限执行该指令！\n缺少权限：" + e.getPermission())
+                    .color(NamedTextColor.RED)
+            );
+        } catch (WrongSenderException e) {
+            //执行对象错误
+            sender.sendMessage(Component.text("本命令只允许" + e.getExpected() + "执行！")
                     .color(NamedTextColor.RED)
             );
         }
@@ -199,51 +252,5 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
         ConsoleUtil.info(methodMap.toString());
 
     }
-
-    record SubCommandPreState(String command, String args) {
-        public int getArgLength() {
-            return args.split("\\.").length;
-        }
-
-        public int getCommandLength() {
-            return command.split("\\.").length;
-        }
-
-        public int getTotalLength() {
-            return getArgLength() + getCommandLength();
-        }
-
-        @Contract(pure = true)
-        public String @NotNull [] getTypes() {
-            return args.split("\\.");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            SubCommandPreState that = (SubCommandPreState) o;
-            return command.equals(that.command) && args.equals(that.args);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(command, args);
-        }
-
-        @Contract(pure = true)
-        @Override
-        public @NotNull String toString() {
-            return "SubCommandPreState{" +
-                    "command='" + command + '\'' +
-                    ", args='" + args + '\'' +
-                    '}';
-        }
-    }
-
 
 }

@@ -1,6 +1,6 @@
 package cn.fusionfish.core.command.parser;
 
-import cn.fusionfish.core.exception.ParseException;
+import cn.fusionfish.core.exception.command.ParseException;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 

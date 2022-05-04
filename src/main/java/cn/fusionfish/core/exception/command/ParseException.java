@@ -1,4 +1,4 @@
-package cn.fusionfish.core.exception;
+package cn.fusionfish.core.exception.command;
 
 /**
  * @author JeremyHu

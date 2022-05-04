@@ -1,6 +1,6 @@
 # FusionCore
 
-FusionCore是本人为了简化bukkit插件开发过程，从而开发的一款前置插件。
+FusionCore是本人为了简化bukkit插件开发过程从而开发的一款前置插件。
 
 ## 功能
 
