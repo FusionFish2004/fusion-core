@@ -45,7 +45,6 @@ public final class ServerController {
     public void loadHandlers(@NotNull FusionPlugin plugin) {
         Reflections reflections = plugin.getReflections();
         Set<Handler> handlers = reflections.getTypesAnnotatedWith(FusionHandler.class).stream()
-                .filter(clazz -> "cn.fusionfish.core.web.http.Handler".equals(clazz.getSuperclass().getName()))
                 .map(clazz -> {
                     try {
                         return (Handler) clazz.getDeclaredConstructor().newInstance();
@@ -58,7 +57,7 @@ public final class ServerController {
                 .filter(handler -> !"".equals(handler.getPath()))
                 .peek(this::createContext)
                 .collect(Collectors.toSet());
-        this.handlers.addAll(handlers);
+
         if (!handlers.isEmpty()) {
             ConsoleUtil.info("为插件" + plugin.getName() + "注册了" + handlers.size() + "个HTTP服务.");
         }

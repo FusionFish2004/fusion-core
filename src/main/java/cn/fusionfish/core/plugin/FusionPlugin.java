@@ -1,10 +1,8 @@
 package cn.fusionfish.core.plugin;
 
-import cn.fusionfish.core.annotations.FusionCommand;
 import cn.fusionfish.core.annotations.FusionListener;
 import cn.fusionfish.core.command.BukkitCommand;
 import cn.fusionfish.core.command.CommandManager;
-import cn.fusionfish.core.command.SimpleCommand;
 import cn.fusionfish.core.web.http.ServerController;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -38,8 +36,7 @@ public abstract class FusionPlugin extends JavaPlugin {
 
     private static FusionPlugin instance;
     private Set<Listener> listeners;
-    private Set<SimpleCommand> commands;
-    private Set<BukkitCommand> bukkitCommands;
+    private Set<BukkitCommand> commands;
     private CommandManager commandManager;
     private Reflections reflections;
     public final File CONFIG_FILE = new File(getDataFolder(), "config.yml");
@@ -134,34 +131,9 @@ public abstract class FusionPlugin extends JavaPlugin {
 
     private void registerCommands() {
 
-        //旧指令的支持
-        //TODO 移除支持
-        //获取所有类
-        Set<Class<?>> oldClasses = reflections.getTypesAnnotatedWith(FusionCommand.class);
-
-        this.commands = oldClasses.stream()
-                .map(clazz -> {
-                    try {
-                        return (SimpleCommand) clazz.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        commands.forEach(SimpleCommand::init);
-        //仅保留父命令
-        commands.removeIf(command -> !command.isParentCommand());
-
-        //注册命令
-        commands.forEach(command -> commandManager.registerCommand(command));
-
-
         //新指令的支持
         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(cn.fusionfish.core.annotations.BukkitCommand.class);
-        Set<BukkitCommand> collect = oldClasses.stream()
+        this.commands = classes.stream()
                 .map(clazz -> {
                     try {
                         return (BukkitCommand) clazz.getDeclaredConstructor().newInstance();
@@ -172,13 +144,11 @@ public abstract class FusionPlugin extends JavaPlugin {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        bukkitCommands.addAll(collect);
-
+        commands.forEach(getCommandManager()::registerCommand);
 
         if (isCore()) {
             return;
         }
-
 
         int size = classes.size();
         if (size > 0) {
@@ -220,7 +190,7 @@ public abstract class FusionPlugin extends JavaPlugin {
         return listeners;
     }
 
-    public final Set<SimpleCommand> getCommands() {
+    public final Set<BukkitCommand> getCommands() {
         return commands;
     }
 

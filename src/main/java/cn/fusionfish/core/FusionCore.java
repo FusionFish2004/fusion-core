@@ -48,6 +48,9 @@ public final class FusionCore extends FusionPlugin {
                 前置插件FusionCore已加载成功！""";
         info(StringUtil.breakLines(msg));
 
+        String bukkitVersion = Bukkit.getServer().getBukkitVersion();
+        info("在" + bukkitVersion + "平台运行中.");
+
         supportedPlugins = Arrays.stream(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin.getDescription().getDepend().contains("FusionCore"))
                 .collect(Collectors.toSet());
@@ -56,6 +59,7 @@ public final class FusionCore extends FusionPlugin {
             supportedPlugins.forEach(plugin -> info(" - " + plugin.getName() + " - v" + plugin.getDescription().getVersion()));
         }
 
+        //注册所有http服务
         initHttpService();
 
         checkLoadState();

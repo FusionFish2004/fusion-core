@@ -1,6 +1,7 @@
 package cn.fusionfish.core.command;
 
 import cn.fusionfish.core.plugin.FusionPlugin;
+import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -8,7 +9,6 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public final class CommandManager {
 
-    private final Map<String, Command> commands = new HashMap<>();
+    private final Map<String, Command> commands = Maps.newHashMap();
     private final Plugin plugin;
     private final CommandMap commandMap;
 
