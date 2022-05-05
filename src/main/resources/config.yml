@@ -1,3 +1,4 @@
 web:
+  http-service: false
   http-port: 0
   socket-port: 11451

@@ -1,9 +1,6 @@
 name: FusionCore
 main: cn.fusionfish.core.FusionCore
-version: '${project.version}'
+version: ${version}
 api-version: 1.17
 author: FusionFish
 website: https://gitee.com/fusionfish/fusion-core
-database: true
-libraries:
-  - org.reflections:reflections:0.10.2

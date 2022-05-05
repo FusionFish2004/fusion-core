@@ -1,5 +1,6 @@
 package cn.fusionfish.core.web.socket;
 
+import cn.fusionfish.core.FusionCore;
 import cn.fusionfish.core.exception.SocketNotDeployingException;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import cn.fusionfish.core.utils.ConsoleUtil;
@@ -22,7 +23,7 @@ public class ServerSocketThread extends Thread {
     private final int port;
 
     public ServerSocketThread() throws SocketNotDeployingException, IOException {
-        FileConfiguration config = FusionPlugin.getCore().getConfig();
+        FileConfiguration config = FusionCore.getCore().getConfig();
         this.port = config.getInt("web.socket-port");
         if (port == 0) {
             throw new SocketNotDeployingException();

@@ -1,5 +1,6 @@
 package cn.fusionfish.core.utils;
 
+import cn.fusionfish.core.FusionCore;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,12 @@ public class ConsoleUtil {
 
     public static void info(String str) {
         FusionPlugin plugin = FusionPlugin.getInstance();
+        Logger logger = plugin.getLogger();
+        logger.info(ChatColor.AQUA + str);
+    }
+
+    public static void infoCore(String str) {
+        FusionPlugin plugin = FusionCore.getCore();
         Logger logger = plugin.getLogger();
         logger.info(ChatColor.AQUA + str);
     }
