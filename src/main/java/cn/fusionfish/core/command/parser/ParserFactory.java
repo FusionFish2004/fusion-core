@@ -17,6 +17,7 @@ public class ParserFactory {
             case "Boolean", "boolean" -> new BooleanParser();
             case "Float", "float" -> new FloatParser();
             case "Long", "long" -> new LongParser();
+            case "String" -> new StringParser();
             case "Date" -> new DateParser();
             case "Vector" -> new VectorParser();
             case "World" -> new WorldParser();

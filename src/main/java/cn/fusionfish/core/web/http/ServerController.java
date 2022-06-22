@@ -1,18 +1,18 @@
 package cn.fusionfish.core.web.http;
 
 import cn.fusionfish.core.FusionCore;
-import cn.fusionfish.core.annotations.FusionHandler;
+import cn.fusionfish.core.annotations.RequestHandler;
 import cn.fusionfish.core.exception.HttpServerNotDeployingException;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import cn.fusionfish.core.utils.ConsoleUtil;
 import com.google.common.collect.Sets;
 import com.sun.net.httpserver.HttpServer;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -21,10 +21,11 @@ import java.util.stream.Collectors;
  * @author JeremyHu
  */
 @SuppressWarnings("unused")
+@Getter
 public final class ServerController {
 
     private final HttpServer server;
-    private final Set<Handler> handlers = Sets.newHashSet();
+    private final Set<MethodRequestHandler> handlers = Sets.newHashSet();
     private final int port;
 
     @SuppressWarnings("all")
@@ -40,11 +41,14 @@ public final class ServerController {
 
         server.setExecutor(Executors.newCachedThreadPool());
         server.start();
+
+        loadHandlers(FusionCore.getInstance());
     }
 
     public void loadHandlers(@NotNull FusionPlugin plugin) {
         Reflections reflections = plugin.getReflections();
-        Set<Handler> handlers = reflections.getTypesAnnotatedWith(FusionHandler.class).stream()
+        Set<MethodRequestHandler> handlers = Sets.newHashSet();
+                reflections.getTypesAnnotatedWith(RequestHandler.class).stream()
                 .map(clazz -> {
                     try {
                         return (Handler) clazz.getDeclaredConstructor().newInstance();
@@ -53,42 +57,30 @@ public final class ServerController {
                         return null;
                     }
                 })
-                .filter(Objects::nonNull)
-                .filter(handler -> !"".equals(handler.getPath()))
-                .peek(this::createContext)
-                .collect(Collectors.toSet());
+                .map(HandlerParser::new)
+                .map(HandlerParser::parse)
+                .peek(methodRequestHandlers -> methodRequestHandlers.forEach(this::createContext))
+                .forEach(handlers::addAll);
 
         if (!handlers.isEmpty()) {
             ConsoleUtil.info("为插件" + plugin.getName() + "注册了" + handlers.size() + "个HTTP服务.");
         }
     }
 
-    public void createContext(@NotNull Handler handler) {
+    public void createContext(@NotNull MethodRequestHandler handler) {
         String path = handler.getPath();
         server.createContext(path, handler);
-        ConsoleUtil.info("创建服务(" + handler.getClass().getSimpleName() + ": " + handler.getPath() + ")");
+        ConsoleUtil.info("创建服务(" + handler.getPath() + ")");
         handlers.add(handler);
-    }
-
-    public Set<Handler> getHandlers() {
-        return handlers;
     }
 
     private void createContexts() {
         handlers.forEach(this::createContext);
     }
 
-    public HttpServer getServer() {
-        return server;
-    }
-
     public void stop() {
         server.stop(0);
     }
 
-
-    public int getPort() {
-        return port;
-    }
 
 }

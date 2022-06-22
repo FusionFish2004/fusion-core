@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 /**
  * @author JeremyHu
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FusionHandler {
-    String path();
+public @interface RequestParam {
+    String paramName();
+    String defaultValue() default "null";
 }

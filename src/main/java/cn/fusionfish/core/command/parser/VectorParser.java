@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class VectorParser implements Parser<Vector> {
     @Override
     public Vector parse(@NotNull String arg) throws ParseException {
+
         String trimmed = arg.replace("(", "").replace(")", "");
         String[] coordinates = trimmed.split(",");
         if (coordinates.length != 3) {

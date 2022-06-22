@@ -127,7 +127,6 @@ public abstract class BukkitSimpleCommand extends BukkitCommand {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
     public @interface Invoke {
-        String command();
         boolean playerCommand() default false;
         boolean adminCommand() default false;
         String permission() default "";

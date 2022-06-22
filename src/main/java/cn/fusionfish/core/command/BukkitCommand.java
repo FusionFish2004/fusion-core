@@ -17,6 +17,7 @@ public abstract class BukkitCommand extends Command {
 
     protected BukkitCommand(@NotNull String name) {
         super(name);
+        setLabel(name);
     }
 
     record SubCommandPreState(String command, String args) {
