@@ -1,5 +1,7 @@
 package cn.fusionfish.core.plugin;
 
+import cn.fusionfish.core.FusionCore;
+import cn.fusionfish.core.actionbar.ActionBarManager;
 import cn.fusionfish.core.annotations.FusionListener;
 import cn.fusionfish.core.command.BukkitCommand;
 import cn.fusionfish.core.command.CommandManager;
@@ -77,6 +79,10 @@ public abstract class FusionPlugin extends JavaPlugin {
         //确认加载完成
         getCore().loadComplete(this);
 
+    }
+
+    public static ActionBarManager getActionBarManager() {
+        return FusionCore.getActionBarManager();
     }
 
     @Override

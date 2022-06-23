@@ -1,22 +1,22 @@
 package cn.fusionfish.core;
 
+import cn.fusionfish.core.actionbar.ActionBarManager;
 import cn.fusionfish.core.exception.HttpServerNotDeployingException;
 import cn.fusionfish.core.plugin.FusionPlugin;
-import cn.fusionfish.core.utils.ConsoleUtil;
 import cn.fusionfish.core.utils.FileUtil;
 import cn.fusionfish.core.utils.StringUtil;
 import cn.fusionfish.core.web.http.ServerController;
 import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.*;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -33,6 +33,7 @@ public final class FusionCore extends FusionPlugin {
     private ServerController serverController;
     private static FusionCore core;
     private final Map<Plugin, Boolean> pluginLoadConfirmBuffer = Maps.newHashMap();
+    private static ActionBarManager actionBarManager;
 
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -40,6 +41,7 @@ public final class FusionCore extends FusionPlugin {
     protected void enable() {
 
         core = this;
+        actionBarManager = new ActionBarManager();
 
         String msg = """
                 ================================================================================
@@ -72,8 +74,10 @@ public final class FusionCore extends FusionPlugin {
 
         checkLoadState();
 
+    }
 
-
+    public static ActionBarManager getActionBarManager() {
+        return actionBarManager;
     }
 
     @Override
