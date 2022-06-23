@@ -28,11 +28,11 @@ depend
 ````
 随后您就可以使用本前置插件提供的许多功能。
 ***
-##功能
-###指令自动注册与智能解析
+## 功能
+### 指令自动注册与智能解析
 插件启动时会自动扫描包中的所有标注好的指令类并自动注册，省去繁琐的步骤。  
 命令执行时将自动解析到类中的方法，参数也将一同自动传入。
-####简单指令
+#### 简单指令
 形如`/simplecommand`的指令便为简单指令（执行时无参数）  
 新建一个类并继承`BukkitSimpleCommand`，并且在类上标注`@BukkitCommand`注解：
 ````
@@ -60,7 +60,7 @@ public class YourSimpleCommand extends BukkitSimpleCommand {
         //执行的代码...
     }
 ````
-####复合指令
+#### 复合指令
 形如`/compositecommand sub1 sub2 arg1 arg2`的指令便为复合指令（执行时有参数）  
 新建一个类并继承`BukkitCompositeCommand`，并且在类上标注`@BukkitCommand`注解：
 ````
@@ -78,7 +78,7 @@ public class YourCompositeCommand extends BukkitCompositeCommand {
 创建一个方法并标注`@SubCommand`注解，执行时便可将所有参数解析后传入。
 |参数|类型|描述|
 |:-:|:-:|:-------------|
-|command|String|指定子命令，如主指令为`compositecommand`，该参数设置为`sub1.sub2.sub3`，在执行指令`/compositecommand sub1 sub2 sub3 args..`时会自动解析到本方法|
+|command|String|必填，指定子命令，如主指令为`compositecommand`，该参数设置为`sub1.sub2.sub3`，在执行指令`/compositecommand sub1 sub2 sub3 args..`时会自动解析到本方法|
 ````
 
 
