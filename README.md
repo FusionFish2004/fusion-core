@@ -79,8 +79,35 @@ public class YourCompositeCommand extends BukkitCompositeCommand {
 |参数|类型|描述|
 |:-:|:-:|:-------------|
 |command|String|必填，指定子命令，如主指令为`compositecommand`，该参数设置为`sub1.sub2.sub3`，在执行指令`/compositecommand sub1 sub2 sub3 args..`时会自动解析到本方法|
+|playerCommand|boolean|默认值为false，指定是否只能由玩家执行该指令|
+|adminCommand|boolean|默认值为false，指定是否只能由管理员执行该指令|
+|usage|String|默认为空，指定命令提示|
+|permission|String|默认为空，指定本命令是否需要特定权限|
 ````
-
-
+    @SubCommand(
+            command = "sub1.sub2",
+            playerCommand = true,
+            adminCommand = true,
+            usage = "/compositecommand sub1 sub2 [String]",
+            permission = "compositecommand.permission"
+    )
+    public void invoke(CommandSender sender, String string) {
+        //指令执行时将会自动将所需参数传入
+        //当解析错误时会报ParseException
+    }
 ````
+可以解析的参数类型：
+|参数类型|描述|
+|:--:|:-------------|
+|Boolean/boolean|可解析`true`或`false`（不分大小写）|
+|Date|可解析形如`yyyy/MM/dd`或`yyyy-MM-dd`|
+|Double/double|解析为双精度浮点数|
+|Float/float|解析为单精度浮点数|
+|Integer/int|解析为整形|
+|Long/long|解析为长整型|
+|String|解析为字符串，注意`null`也将解析为空|
+|UUID|解析为UUID|
+|Vector|解析为向量，需要输入形如`(x,y,z)`的字符串|
+|World|解析为世界，需要输入世界名|
+**如果指令输入的参数为`null`将会解析为空**
 
