@@ -6,17 +6,19 @@ import cn.fusionfish.core.utils.ConsoleUtil;
 import cn.fusionfish.core.utils.FileUtil;
 import cn.fusionfish.core.utils.StringUtil;
 import cn.fusionfish.core.web.http.ServerController;
+import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.*;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static cn.fusionfish.core.utils.ConsoleUtil.info;
@@ -30,6 +32,9 @@ public final class FusionCore extends FusionPlugin {
     private Set<@NotNull Plugin> supportedPlugins;
     private ServerController serverController;
     private static FusionCore core;
+    private final Map<Plugin, Boolean> pluginLoadConfirmBuffer = Maps.newHashMap();
+
+    private final ExecutorService service = Executors.newSingleThreadExecutor();
 
     @Override
     protected void enable() {
@@ -54,6 +59,9 @@ public final class FusionCore extends FusionPlugin {
         supportedPlugins = Arrays.stream(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin.getDescription().getDepend().contains("FusionCore"))
                 .collect(Collectors.toSet());
+
+        supportedPlugins.forEach(plugin -> pluginLoadConfirmBuffer.put(plugin,false));
+
         if (!supportedPlugins.isEmpty()) {
             info("下列插件（使用FusionCore前置）准备加入服务器：");
             supportedPlugins.forEach(plugin -> info(" - " + plugin.getName() + " - v" + plugin.getDescription().getVersion()));
@@ -63,6 +71,9 @@ public final class FusionCore extends FusionPlugin {
         initHttpService();
 
         checkLoadState();
+
+
+
     }
 
     @Override
@@ -71,21 +82,28 @@ public final class FusionCore extends FusionPlugin {
     }
 
     private void checkLoadState() {
-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+        Runnable runnable = () -> {
             while (true) {
-                long unable = supportedPlugins.stream()
-                        .filter(plugin -> !plugin.isEnabled())
-                        .count();
-                if (unable == 0) {
+                if (pluginLoadConfirmBuffer.isEmpty()) {
+                    break;
+                }
+
+                if (pluginLoadConfirmBuffer.values().stream().allMatch(Boolean::booleanValue)) {
+                    //所有插件加载完成
                     break;
                 }
             }
-            return null;
-        });
-        future.thenAccept(v -> {
             infoCore("加载成功！");
-            afterLoad();
-        });
+            BukkitScheduler scheduler = Bukkit.getScheduler();
+            scheduler.runTask(core, this::afterLoad);
+        };
+        service.execute(runnable);
+    }
+
+    public void loadComplete(Plugin plugin) {
+        if (pluginLoadConfirmBuffer.containsKey(plugin)) {
+            pluginLoadConfirmBuffer.put(plugin, true);
+        }
     }
 
     private void afterLoad() {

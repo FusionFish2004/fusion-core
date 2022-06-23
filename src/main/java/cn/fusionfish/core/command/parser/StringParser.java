@@ -1,6 +1,7 @@
 package cn.fusionfish.core.command.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author JeremyHu
@@ -8,11 +9,13 @@ import cn.fusionfish.core.exception.command.ParseException;
 public class StringParser implements Parser<String> {
 
     @Override
-    public String parse(String arg) throws ParseException {
+    public String parse(@NotNull String arg) throws ParseException {
+
+        if (arg.equalsIgnoreCase(NULL_STRING)) {
+            return null;
+        }
+
         try {
-            if ("null".equalsIgnoreCase(arg)) {
-                return null;
-            }
             return arg;
         } catch (Exception e) {
             throw new ParseException(arg);

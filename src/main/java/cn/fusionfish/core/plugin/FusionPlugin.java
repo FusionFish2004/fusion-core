@@ -74,6 +74,9 @@ public abstract class FusionPlugin extends JavaPlugin {
         //触发子类enable方法
         enable();
 
+        //确认加载完成
+        getCore().loadComplete(this);
+
     }
 
     @Override

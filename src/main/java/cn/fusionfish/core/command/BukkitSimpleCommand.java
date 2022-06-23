@@ -33,7 +33,7 @@ public abstract class BukkitSimpleCommand extends BukkitCommand {
         List<Method> candidates = Arrays.stream(this.getClass().getDeclaredMethods())
                 //获取含有指定注解的所有方法
                 .filter(method -> method.isAnnotationPresent(Invoke.class))
-                .collect(Collectors.toList());
+                .toList();
         if (candidates.size() != 1) {
             //获取到的方法不唯一
             sender.sendMessage(Component.text("无法解析命令\"" + label + "\"！")

@@ -11,6 +11,10 @@ public class VectorParser implements Parser<Vector> {
     @Override
     public Vector parse(@NotNull String arg) throws ParseException {
 
+        if (arg.equalsIgnoreCase(NULL_STRING)) {
+            return null;
+        }
+
         String trimmed = arg.replace("(", "").replace(")", "");
         String[] coordinates = trimmed.split(",");
         if (coordinates.length != 3) {

@@ -8,13 +8,16 @@ import org.jetbrains.annotations.Nullable;
  * @author JeremyHu
  */
 public interface Parser<T> {
+
+    String NULL_STRING = "null";
+
     /**
      * 解析参数
      * @param arg 参数
      * @return 数据
      * @throws ParseException 解析异常
      */
-    T parse(String arg) throws ParseException;
+    @Nullable T parse(String arg) throws ParseException;
 
     /**
      * 智能解析所有参数
@@ -23,7 +26,6 @@ public interface Parser<T> {
      * @throws ParseException 当解析失败时抛出异常
      * @return 解析后的所有参数
      */
-    @Contract(pure = true)
     static Object @Nullable [] parseArgs(String[] args, String[] types) throws ParseException {
 
         if (args == null) {

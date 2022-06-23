@@ -249,8 +249,6 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
 
                 });
 
-        ConsoleUtil.info(methodMap.toString());
-
     }
 
 }
