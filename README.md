@@ -108,6 +108,8 @@ public class YourCompositeCommand extends BukkitCompositeCommand {
 |String|解析为字符串，注意`null`也将解析为空|
 |UUID|解析为UUID|
 |Vector|解析为向量，需要输入形如`(x,y,z)`的字符串|
-|World|解析为世界，需要输入世界名|  
+|World|解析为世界，需要输入世界名|   
+
 **如果指令输入的参数为`null`将会解析为空**
+### HTTP服务
 
