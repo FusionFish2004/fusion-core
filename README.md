@@ -112,4 +112,34 @@ public class YourCompositeCommand extends BukkitCompositeCommand {
 
 **如果指令输入的参数为`null`将会解析为空**
 ### HTTP服务
-
+新建一个类并实现`Handler`接口，并在类上和方法上标注`@RequestHandler`注解。  
+类注解中的参数`path`指定您要创建http服务的父路径，而方法中的路径指定http服务的子路径，例如父路径为
+`/api/super`，子路径为`/sub/sub`，则会创建一个路径为`/api/super/sub/sub`的http服务。
+````
+@RequestHandler(path = "/yourpath")
+public class YourHandler implements Handler {
+    
+    @RequestHandler(path = "/yourpath)
+    public String invoke() {
+        
+    }
+}
+````
+注意方法的返回值必须为String，不然会报错。  
+方法要解析的每个参数中必须标注`@RequestParam`注解，其中`paramName`指定了http请求中传入的参数名，`defaultValue`则指定了默认参数值，默认为`null`。   
+注解完的代码在执行时便可自动解析参数并传入方法。
+````
+    @RequestHandler(path = "/yourpath")
+    public String invoke(
+        @RequestParam(paramName = "double1", defaultValue = "0") Double d1,
+        @RequestParam(paramName = "string1") String s1
+    ) {
+        //...
+    }
+````
+插件启动时会自动注册所有http服务，可在配置文件中配置http服务器的端口：
+````
+web:
+  http-service: false
+  http-port: 11451
+````
