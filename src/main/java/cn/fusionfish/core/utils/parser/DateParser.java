@@ -1,4 +1,4 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * @author JeremyHu
  */
-public class DateParser implements Parser<Date> {
+public class DateParser implements ParamParser<Date> {
     private static final String[] PATTERNS = {
             "yyyy-MM-dd hh:mm:ss",
             "yyyy-MM-dd hh:mm",

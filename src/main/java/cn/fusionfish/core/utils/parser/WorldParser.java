@@ -1,4 +1,4 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.bukkit.Bukkit;
@@ -8,7 +8,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author JeremyHu
  */
-public class WorldParser implements Parser<World> {
+
+public class WorldParser implements ParamParser<World> {
     @Override
     public World parse(@NotNull String arg) throws ParseException {
 

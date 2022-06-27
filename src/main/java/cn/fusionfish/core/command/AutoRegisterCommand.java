@@ -1,4 +1,4 @@
-package cn.fusionfish.core.annotations;
+package cn.fusionfish.core.command;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,9 +8,8 @@ import java.lang.annotation.Target;
 /**
  * @author JeremyHu
  */
-@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestParam {
-    String paramName();
-    String defaultValue() default "null";
+@Target(ElementType.TYPE)
+public @interface AutoRegisterCommand {
+
 }

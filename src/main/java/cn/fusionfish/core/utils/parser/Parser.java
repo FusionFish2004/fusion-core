@@ -1,4 +1,4 @@
-package cn.fusionfish.core.annotations;
+package cn.fusionfish.core.utils.parser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * @author JeremyHu
  */
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FusionListener {
+@Target(ElementType.TYPE)
+public @interface Parser {
 
 }

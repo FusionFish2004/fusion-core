@@ -1,4 +1,4 @@
-package cn.fusionfish.core.annotations;
+package cn.fusionfish.core.web.http;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

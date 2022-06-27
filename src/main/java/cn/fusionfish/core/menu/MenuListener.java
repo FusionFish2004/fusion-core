@@ -1,6 +1,6 @@
 package cn.fusionfish.core.menu;
 
-import cn.fusionfish.core.annotations.FusionListener;
+import cn.fusionfish.core.listener.AutoRegisterListener;
 import cn.fusionfish.core.utils.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author JeremyHu
  */
-@FusionListener
+@AutoRegisterListener
 public class MenuListener implements Listener {
 
     @EventHandler

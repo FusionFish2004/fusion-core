@@ -1,10 +1,19 @@
 package cn.fusionfish.core.actionbar;
 
+import cn.fusionfish.core.plugin.FusionPlugin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +25,9 @@ import java.util.Map;
 /**
  * @author JeremyHu
  */
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 public class PlayerActionBar {
 
     private final Player player;
@@ -34,6 +45,11 @@ public class PlayerActionBar {
         }
     };
 
+    public PlayerActionBar(Player player) {
+        this.player = player;
+        runnable.runTaskTimer(FusionPlugin.getInstance(), 0L ,1L);
+    }
+
     private void tick() {
         show();
         updateTempTrack();
@@ -43,16 +59,31 @@ public class PlayerActionBar {
         if (!tempTrack.isEmpty()) {
             TempActionBarMessage newestMessage = getNewestMessage();
             assert newestMessage != null;
-            player.sendActionBar(newestMessage.getText());
+
+            sendBar(newestMessage.getText());
             return;
         }
 
         if (sustainTrack != null) {
-            player.sendActionBar(sustainTrack.getText());
+            sendBar(sustainTrack.getText());
             return;
         }
 
         sendEmptyMessage();
+    }
+
+    private void sendBar(TextComponent component) {
+        //PAPI支持
+        if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
+            String serialize = serializer.serialize(component);
+            String set = PlaceholderAPI.setPlaceholders(player, serialize);
+            TextComponent deserialize = serializer.deserialize(set);
+            player.sendActionBar(deserialize);
+            return;
+        }
+
+        player.sendActionBar(component);
     }
 
     public void clear() {

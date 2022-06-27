@@ -1,23 +1,20 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 /**
  * @author JeremyHu
  */
-public class UUIDParser implements Parser<UUID> {
-    @Override
-    public UUID parse(@NotNull String arg) throws ParseException {
 
+public class DoubleParser implements ParamParser<Double> {
+    @Override
+    public Double parse(@NotNull String arg) throws ParseException {
         if (arg.equalsIgnoreCase(NULL_STRING)) {
             return null;
         }
-
         try {
-            return UUID.fromString(arg);
+            return Double.parseDouble(arg);
         } catch (Exception e) {
             throw new ParseException(arg);
         }

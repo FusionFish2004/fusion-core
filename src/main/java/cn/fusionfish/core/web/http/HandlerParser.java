@@ -1,6 +1,5 @@
 package cn.fusionfish.core.web.http;
 
-import cn.fusionfish.core.annotations.RequestHandler;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;

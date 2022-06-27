@@ -34,7 +34,7 @@ depend
 命令执行时将自动解析到类中的方法，参数也将一同自动传入。
 #### 简单指令
 形如`/simplecommand`的指令便为简单指令
-新建一个类并继承`BukkitSimpleCommand`，并且在类上标注`@BukkitCommand`注解：
+新建一个类并继承`BukkitSimpleCommand`，并且在类上标注`@AutoRegisterCommand`注解：
 ````
 @BukkitCommand
 public class YourSimpleCommand extends BukkitSimpleCommand {
@@ -62,7 +62,7 @@ public class YourSimpleCommand extends BukkitSimpleCommand {
 ````
 #### 复合指令
 形如`/compositecommand sub1 sub2 arg1 arg2`的指令便为复合指令 
-新建一个类并继承`BukkitCompositeCommand`，并且在类上标注`@BukkitCommand`注解：
+新建一个类并继承`BukkitCompositeCommand`，并且在类上标注`@AutoRegisterCommand`注解：
 ````
 @BukkitCommand
 public class YourCompositeCommand extends BukkitCompositeCommand {
@@ -100,7 +100,7 @@ public class YourCompositeCommand extends BukkitCompositeCommand {
 |参数类型|描述|
 |:--:|:-------------|
 |Boolean/boolean|可解析`true`或`false`（不分大小写）|
-|Date|可解析形如`yyyy/MM/dd`或`yyyy-MM-dd`等的字符串|
+|Date|可解析形如`yyyy/MM/dd`或`yyyy-MM-dd`等的字符串，输入`now`则会自动解析成当前的时间|
 |Double/double|解析为双精度浮点数|
 |Float/float|解析为单精度浮点数|
 |Integer/int|解析为整形|

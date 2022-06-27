@@ -1,13 +1,21 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
+import cn.fusionfish.core.FusionCore;
 import cn.fusionfish.core.exception.command.ParseException;
+import cn.fusionfish.core.plugin.FusionPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Method;
 
 /**
  * @author JeremyHu
  */
-public interface Parser<T> {
+public interface ParamParser<T> {
 
     String NULL_STRING = "null";
 
@@ -36,7 +44,7 @@ public interface Parser<T> {
             return null;
         }
 
-        ParserFactory factory = new ParserFactory();
+        ParserFactory factory = FusionCore.getParserFactory();
 
         if (args.length != types.length) {
             throw new IllegalArgumentException("智能解析参数数量不匹配！");
@@ -47,8 +55,8 @@ public interface Parser<T> {
         for (int i = 0; i < args.length; i++) {
             String type = types[i];
             String arg = args[i];
-            Parser<?> parser = factory.get(type);
-            Object result = parser.parse(arg);
+            ParamParser<?> paramParser = factory.get(type);
+            Object result = paramParser.parse(arg);
             results[i] = result;
         }
 
@@ -84,11 +92,20 @@ public interface Parser<T> {
         for (int i = 0; i < args.length; i++) {
             Class<?> type = types[i];
             String arg = args[i];
-            Parser<?> parser = factory.get(type);
-            Object result = parser.parse(arg);
+            ParamParser<?> paramParser = factory.get(type);
+            Object result = paramParser.parse(arg);
             results[i] = result;
         }
 
         return results;
+    }
+
+    default Class<?> getType() {
+        try {
+            Method method = getClass().getDeclaredMethod("parse", String.class);
+            return method.getReturnType();
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 }

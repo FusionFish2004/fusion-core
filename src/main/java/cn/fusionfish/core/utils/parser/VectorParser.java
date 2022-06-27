@@ -1,4 +1,4 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.bukkit.util.Vector;
@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author JeremyHu
  */
-public class VectorParser implements Parser<Vector> {
+
+public class VectorParser implements ParamParser<Vector> {
     @Override
     public Vector parse(@NotNull String arg) throws ParseException {
 

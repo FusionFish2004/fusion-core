@@ -1,11 +1,14 @@
 package cn.fusionfish.core.plugin;
 
 import cn.fusionfish.core.FusionCore;
-import cn.fusionfish.core.actionbar.ActionBarManager;
-import cn.fusionfish.core.annotations.FusionListener;
+import cn.fusionfish.core.command.AutoRegisterCommand;
 import cn.fusionfish.core.command.BukkitCommand;
 import cn.fusionfish.core.command.CommandManager;
+import cn.fusionfish.core.listener.AutoRegisterListener;
+import cn.fusionfish.core.manager.Manager;
+import cn.fusionfish.core.utils.parser.ParserFactory;
 import cn.fusionfish.core.web.http.ServerController;
+import lombok.EqualsAndHashCode;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +19,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
@@ -81,8 +85,12 @@ public abstract class FusionPlugin extends JavaPlugin {
 
     }
 
-    public static ActionBarManager getActionBarManager() {
-        return FusionCore.getActionBarManager();
+    public static <T extends Manager> T getManager(Class<T> managerClass) {
+        return FusionCore.getManager(managerClass);
+    }
+
+    public static ParserFactory getParserFactory() {
+        return FusionCore.getParserFactory();
     }
 
     @Override
@@ -141,11 +149,14 @@ public abstract class FusionPlugin extends JavaPlugin {
     private void registerCommands() {
 
         //新指令的支持
-        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(cn.fusionfish.core.annotations.BukkitCommand.class);
+        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(AutoRegisterCommand.class);
         this.commands = classes.stream()
+                .parallel()
                 .map(clazz -> {
                     try {
-                        return (BukkitCommand) clazz.getDeclaredConstructor().newInstance();
+                        Constructor<?> constructor = clazz.getDeclaredConstructor();
+                        constructor.setAccessible(true);
+                        return (BukkitCommand) constructor.newInstance();
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;
@@ -154,6 +165,8 @@ public abstract class FusionPlugin extends JavaPlugin {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         commands.forEach(getCommandManager()::registerCommand);
+
+        commandManager.updateCommands();
 
         if (isCore()) {
             return;
@@ -167,9 +180,10 @@ public abstract class FusionPlugin extends JavaPlugin {
 
     private void registerListeners() {
 
-        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(FusionListener.class);
+        Set<Class<?>> classes = reflections.getTypesAnnotatedWith(AutoRegisterListener.class);
         //获取所有类
         this.listeners = classes.stream()
+                .parallel()
                 .map(clazz -> {
                     try {
                         return (Listener) clazz.getDeclaredConstructor().newInstance();
@@ -198,6 +212,8 @@ public abstract class FusionPlugin extends JavaPlugin {
     public final Set<Listener> getListeners() {
         return listeners;
     }
+
+
 
     public final Set<BukkitCommand> getCommands() {
         return commands;

@@ -1,10 +1,12 @@
 package cn.fusionfish.core;
 
-import cn.fusionfish.core.actionbar.ActionBarManager;
 import cn.fusionfish.core.exception.HttpServerNotDeployingException;
+import cn.fusionfish.core.manager.Manager;
+import cn.fusionfish.core.manager.ManagerManager;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import cn.fusionfish.core.utils.FileUtil;
 import cn.fusionfish.core.utils.StringUtil;
+import cn.fusionfish.core.utils.parser.ParserFactory;
 import cn.fusionfish.core.web.http.ServerController;
 import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
@@ -29,11 +31,14 @@ import static cn.fusionfish.core.utils.ConsoleUtil.infoCore;
  */
 public final class FusionCore extends FusionPlugin {
 
-    private Set<@NotNull Plugin> supportedPlugins;
+    private Set<@NotNull FusionPlugin> supportedPlugins;
     private ServerController serverController;
     private static FusionCore core;
-    private final Map<Plugin, Boolean> pluginLoadConfirmBuffer = Maps.newHashMap();
-    private static ActionBarManager actionBarManager;
+    private final Map<FusionPlugin, Boolean> pluginLoadConfirmBuffer = Maps.newHashMap();
+
+    private static ParserFactory parserFactory;
+
+    private static ManagerManager managerManager;
 
     private final ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -41,7 +46,11 @@ public final class FusionCore extends FusionPlugin {
     protected void enable() {
 
         core = this;
-        actionBarManager = new ActionBarManager();
+
+        parserFactory = new ParserFactory();
+
+        managerManager = new ManagerManager();
+        managerManager.registerManagers(this);
 
         String msg = """
                 ================================================================================
@@ -60,6 +69,7 @@ public final class FusionCore extends FusionPlugin {
 
         supportedPlugins = Arrays.stream(Bukkit.getPluginManager().getPlugins())
                 .filter(plugin -> plugin.getDescription().getDepend().contains("FusionCore"))
+                .map(plugin -> (FusionPlugin) plugin)
                 .collect(Collectors.toSet());
 
         supportedPlugins.forEach(plugin -> pluginLoadConfirmBuffer.put(plugin,false));
@@ -72,12 +82,22 @@ public final class FusionCore extends FusionPlugin {
         //注册所有http服务
         initHttpService();
 
+        registerManagers();
+
         checkLoadState();
 
     }
 
-    public static ActionBarManager getActionBarManager() {
-        return actionBarManager;
+    public static ParserFactory getParserFactory() {
+        return parserFactory;
+    }
+
+    private void registerManagers() {
+        supportedPlugins.forEach(managerManager::registerManagers);
+    }
+
+    public static <T extends Manager> T getManager(Class<T> managerClass) {
+        return managerManager.getManager(managerClass);
     }
 
     @Override
@@ -104,7 +124,7 @@ public final class FusionCore extends FusionPlugin {
         service.execute(runnable);
     }
 
-    public void loadComplete(Plugin plugin) {
+    public void loadComplete(FusionPlugin plugin) {
         if (pluginLoadConfirmBuffer.containsKey(plugin)) {
             pluginLoadConfirmBuffer.put(plugin, true);
         }
@@ -112,9 +132,7 @@ public final class FusionCore extends FusionPlugin {
 
     private void afterLoad() {
         //注册所有HTTP监听器
-        supportedPlugins.stream()
-                .map(plugin -> (FusionPlugin) plugin)
-                .forEach(serverController::loadHandlers);
+        supportedPlugins.forEach(serverController::loadHandlers);
     }
 
     public static FusionCore getCore() {
@@ -182,7 +200,7 @@ public final class FusionCore extends FusionPlugin {
         }
 
         try {
-            int port = getConfig().getInt("web.http-port", 11451);
+            int port = getConfig().getInt("web.http-port", 8088);
             info("启动HTTP服务器（端口" + port + "）");
             serverController = new ServerController(port);
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author JeremyHu
  */
-public class BooleanParser implements Parser<Boolean> {
+
+public class BooleanParser implements ParamParser<Boolean> {
 
     @Override
     public Boolean parse(@NotNull String arg) throws ParseException {

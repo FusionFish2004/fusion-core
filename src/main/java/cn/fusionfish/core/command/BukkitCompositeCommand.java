@@ -1,17 +1,15 @@
 package cn.fusionfish.core.command;
 
-import cn.fusionfish.core.command.parser.Parser;
+import cn.fusionfish.core.utils.parser.ParamParser;
 import cn.fusionfish.core.exception.command.CommandLackPermissionException;
 import cn.fusionfish.core.exception.command.ParseException;
 import cn.fusionfish.core.exception.command.WrongSenderException;
-import cn.fusionfish.core.utils.ConsoleUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -118,7 +116,7 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
 
         try {
             String[] trimmedArgs = candidates.get(candidate);
-            Object[] parsedArgs = Parser.parseArgs(trimmedArgs, candidate.getTypes());
+            Object[] parsedArgs = ParamParser.parseArgs(trimmedArgs, candidate.getTypes());
 
 
             //检查执行者
@@ -200,16 +198,23 @@ public abstract class BukkitCompositeCommand extends BukkitCommand {
         //添加指令补全
         options.addAll(getNextCommandOption(args));
 
+        //TODO 添加参数补全
+
         return options;
     }
 
-    public List<String> getNextCommandOption(String @NotNull [] args) {
+    private List<String> getParamsOption(String @NotNull [] args) {
+        return null;
+    }
+
+    private List<String> getNextCommandOption(String @NotNull [] args) {
         StringJoiner command = new StringJoiner(".");
         for (String arg : args) {
             command.add(arg);
         }
 
         return methodMap.keySet().stream()
+                .parallel()
                 .filter(candidate -> candidate.command().startsWith(command.toString()))
                 .map(candidate -> {
                     try {

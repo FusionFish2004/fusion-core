@@ -1,4 +1,4 @@
-package cn.fusionfish.core.annotations;
+package cn.fusionfish.core.web.http;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 /**
  * @author JeremyHu
  */
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface BukkitCommand {
-
+public @interface RequestParam {
+    String paramName();
+    String defaultValue() default "null";
 }

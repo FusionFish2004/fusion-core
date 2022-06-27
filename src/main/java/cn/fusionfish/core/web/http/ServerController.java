@@ -1,7 +1,6 @@
 package cn.fusionfish.core.web.http;
 
 import cn.fusionfish.core.FusionCore;
-import cn.fusionfish.core.annotations.RequestHandler;
 import cn.fusionfish.core.exception.HttpServerNotDeployingException;
 import cn.fusionfish.core.plugin.FusionPlugin;
 import cn.fusionfish.core.utils.ConsoleUtil;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * @author JeremyHu

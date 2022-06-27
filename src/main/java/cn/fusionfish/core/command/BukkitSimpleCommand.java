@@ -1,6 +1,6 @@
 package cn.fusionfish.core.command;
 
-import cn.fusionfish.core.command.parser.Parser;
+import cn.fusionfish.core.utils.parser.ParamParser;
 import cn.fusionfish.core.exception.command.CommandLackPermissionException;
 import cn.fusionfish.core.exception.command.ParseException;
 import cn.fusionfish.core.exception.command.WrongSenderException;
@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author JeremyHu
@@ -72,7 +71,7 @@ public abstract class BukkitSimpleCommand extends BukkitCommand {
             Class<?>[] paramTypes = Arrays.stream(method.getParameterTypes())
                     .filter(clazz -> !clazz.equals(CommandSender.class))
                     .toArray(Class<?>[]::new);
-            Object[] parsedArgs = Parser.parseArgs(args, paramTypes);
+            Object[] parsedArgs = ParamParser.parseArgs(args, paramTypes);
 
             Object[] params;
             if (parsedArgs == null) {

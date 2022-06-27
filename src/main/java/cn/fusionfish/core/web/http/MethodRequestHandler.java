@@ -1,8 +1,7 @@
 package cn.fusionfish.core.web.http;
 
-import cn.fusionfish.core.annotations.RequestParam;
-import cn.fusionfish.core.command.parser.Parser;
-import cn.fusionfish.core.command.parser.ParserFactory;
+import cn.fusionfish.core.utils.parser.ParamParser;
+import cn.fusionfish.core.utils.parser.ParserFactory;
 import cn.fusionfish.core.utils.ConsoleUtil;
 import com.google.common.collect.Maps;
 import com.sun.net.httpserver.HttpExchange;
@@ -69,8 +68,8 @@ public class MethodRequestHandler implements HttpHandler {
                 String value = Objects.requireNonNullElse(query.get(paramName), defaultValue);
 
                 ParserFactory parserFactory = new ParserFactory();
-                Parser<?> parser = parserFactory.get(param);
-                Object parse = parser.parse(value);
+                ParamParser<?> paramParser = parserFactory.get(param);
+                Object parse = paramParser.parse(value);
 
                 //存入数组
                 values[i] = parse;

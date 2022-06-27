@@ -1,4 +1,4 @@
-package cn.fusionfish.core.command.parser;
+package cn.fusionfish.core.utils.parser;
 
 import cn.fusionfish.core.exception.command.ParseException;
 import org.jetbrains.annotations.NotNull;
@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author JeremyHu
  */
-public class IntegerParser implements Parser<Integer> {
+public class IntegerParser implements ParamParser<Integer> {
 
 
     @Override
