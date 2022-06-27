@@ -141,5 +141,8 @@ public class YourHandler implements Handler {
 ````
 web:
   http-service: false
-  http-port: 11451
+  http-port: 8088
 ````
+### 自动注册监听器
+新建一个类并实现原版Bukkit中的`Listener`接口，并且在类上标注`@AutoRegisterListener`注解。  
+插件启动时将自动注册该监听器。
