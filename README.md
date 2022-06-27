@@ -36,7 +36,7 @@ depend
 形如`/simplecommand`的指令便为简单指令
 新建一个类并继承`BukkitSimpleCommand`，并且在类上标注`@AutoRegisterCommand`注解：
 ````
-@BukkitCommand
+@AutoRegisterCommand
 public class YourSimpleCommand extends BukkitSimpleCommand {
     //注意这里必须为无参构造器，不然反射注册时会报错
     protected YourSimpleCommand() {
@@ -64,7 +64,7 @@ public class YourSimpleCommand extends BukkitSimpleCommand {
 形如`/compositecommand sub1 sub2 arg1 arg2`的指令便为复合指令 
 新建一个类并继承`BukkitCompositeCommand`，并且在类上标注`@AutoRegisterCommand`注解：
 ````
-@BukkitCommand
+@AutoRegisterCommand
 public class YourCompositeCommand extends BukkitCompositeCommand {
     //注意这里必须为无参构造器，不然反射注册时会报错
     public YourCompositeCommand() {
